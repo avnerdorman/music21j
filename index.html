@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Music21j Note Stream</title>
+  <script src="https://cdn.jsdelivr.net/npm/music21@7.1.1/dist/music21.min.js"></script>
+</head>
+<body>
+  <h1>Music21j Note Stream</h1>
+  <label for="pitches">Enter pitches (e.g., C4, D#5, Bb3):</label>
+  <input type="text" id="pitches" placeholder="C4, D#5, Bb3">
+  <br>
+  <label for="durations">Enter durations (e.g., 4, 2, 1):</label>
+  <input type="text" id="durations" placeholder="4, 2, 1">
+  <br>
+  <button onclick="createNoteStream()">Create Note Stream</button>
+  <div id="output"></div>
+
+  <script>
+    function createNoteStream() {
+      const pitchesInput = document.getElementById("pitches").value;
+      const durationsInput = document.getElementById("durations").value;
+
+      const pitches = pitchesInput.split(",").map(p => p.trim());
+      const durations = durationsInput.split(",").map(d => parseFloat(d.trim()));
+
+      const maxLength = Math.max(pitches.length, durations.length);
+      const extendedPitches = repeatList(pitches, maxLength);
+      const extendedDurations = repeatList(durations, maxLength);
+
+      const stream = new music21.stream.Stream();
+      for (let i = 0; i < maxLength; i++) {
+        const note = new music21.note.Note(extendedPitches[i]);
+        note.duration.type = "quarter";
+        note.duration.quarterLength = extendedDurations[i];
+        stream.append(note);
+      }
+
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = stream.getElementsByClass("Music21Object")[0].innerHTML;
+    }
+
+    function repeatList(list, length) {
+      const extendedList = [];
+      for (let i = 0; i < length; i++) {
+        extendedList.push(list[i % list.length]);
+      }
+      return extendedList;
+    }
+  </script>
+</body>
+</html>
